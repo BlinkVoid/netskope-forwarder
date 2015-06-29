@@ -1,0 +1,86 @@
+#!/usr/bin/env python
+
+__author__ = 'Josh Madeley'
+
+'''
+THIS APPLICATION WILL CONNECT TO THE NETSKOPE API AND PULL ALL THE RWEQUIRED EVENTS
+AND FORWARD THEM TO A SYSLOG SERVER. THE CONFIGURATION ITEMS WILL BE DONE USING ARGPARSE
+'''
+
+import netskope
+import logging
+import argparse
+#import json
+import time
+import sys
+
+
+parser = argparse.ArgumentParser(description='TBD')
+parser.add_argument('--syslogserver', dest='syslogserver', default='127.0.0.1', required=False,help='IP or Hostname of the syslog server')
+parser.add_argument('--syslogport', dest='syslogport', default='514',required=False,help='UDP port of the syslog server')
+parser.add_argument('--daemonize', dest='daemonize', default=False, required=False, help='Run as a daemon. Default is to run once and schedule via Cron')
+parser.add_argument('--loglevel', dest='loglevel', default='INFO', required=False, help='Set log level')
+parser.add_argument('--logfile', dest='logfile', default='/var/log/netskope-forwarder.log', required=False, help='set the log location')
+parser.add_argument('--configfile', dest='configfile', required=False, help='Set\'s the config file location. This file must be formated in an INI style')
+parser.add_argument('--tenant', dest='tenant', required=False, help='Used when no config file is present and sets the tenant server')
+parser.add_argument('--token', dest='token', required=False, help='Used when no config file is present and sets the token')
+parser.add_argument('--events', dest='events', required=False, default='none', help='What events should be forwarded - comma seperated connection | application | audit | all | None (default)')
+parser.add_argument('--alerts', dest='alerts', required=False, default='none', help='What alert events should be forwarded - comma seperated policy | dlp | watchlist | all | None (default)' )
+parser.add_argument('--timeperiod', dest='timeperiod', required=False, default=3600, help='What time period should be used 3600 (default) | 86400 | 604800 | 2592000')
+parser.add_argument('--tempfile', dest='tempfile', required=False, default='.', help='Where the tempfile will be stored <netskope-forwarder.tmp>')
+args = parser.parse_args()
+
+######################################################
+#SET GLOBAL VARIABLES
+######################################################
+syslogserver = str(args.syslogserver)
+syslogport = str(args.syslogport)
+daemonize = str(args.daemonize)
+loglevel = str(args.loglevel)
+logfile = str(args.logfile)
+configfile = str(args.configfile)
+tenant = str(args.tenant)
+token = str(args.token)
+events = str(args.events)
+alerts = str(args.alerts) 
+timeperiod = int(args.timeperiod)
+######################################################
+#INPUT VALIDATION
+######################################################
+if configfile != 'None':
+	None
+elif (token != 'None') and (tenant != 'None'):
+	None
+else:
+	print 'either a configfile needs to be set or a token/tenant pair needs to be set'
+	sys.exit(1)
+######################################################
+def syslogforward():
+	None
+
+def getevents(obj):
+	if events != 'none':
+		print obj
+		print events.split(',')
+	else:
+		None
+def getalerts(obj):
+	if alerts != 'none':
+		print obj
+		print alerts
+	else:
+		None
+
+def main():
+	netsk = netskope.netskope(token, tenant, debug=False)
+	
+	print 'Token:\t%s' % (token)
+	print 'Tenant:\t%s' % (tenant)
+	print 'Time Period:\t%s' % (timeperiod)
+	
+	getevents(netsk)
+	
+	getalerts(netsk)
+
+if __name__ == '__main__':
+	main()
